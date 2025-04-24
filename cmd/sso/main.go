@@ -3,9 +3,12 @@ package main
 import (
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/VariableSan/gia-sso/internal/app"
 	"github.com/VariableSan/gia-sso/internal/config"
+	"github.com/VariableSan/gia-sso/pkg/prettylog"
 )
 
 const (
@@ -31,7 +34,21 @@ func main() {
 		cfg.TokenTTL,
 	)
 
-	application.GRPCSrv.MustRun()
+	go application.GRPCSrv.MustRun()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+
+	stopSignal := <-stop
+
+	log.Info(
+		"stopping application",
+		slog.String("signal", stopSignal.String()),
+	)
+
+	application.GRPCSrv.Stop()
+
+	log.Info("application stopped")
 }
 
 func setupLogger(env string) *slog.Logger {
@@ -46,19 +63,9 @@ func setupLogger(env string) *slog.Logger {
 
 	switch env {
 	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-				Level:       slog.LevelDebug,
-				ReplaceAttr: timeOnly,
-			}),
-		)
+		log = slog.New(prettylog.NewHandler(nil))
 	case envDev:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-				Level:       slog.LevelDebug,
-				ReplaceAttr: timeOnly,
-			}),
-		)
+		log = slog.New(prettylog.NewHandler(nil))
 	case envProd:
 		log = slog.New(
 			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
