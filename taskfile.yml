@@ -1,0 +1,16 @@
+version: "3.8"
+
+tasks:
+  help:
+    desc: Display help for each task
+    cmds:
+      - echo "Usage:"
+      - echo "  task <target>"
+      - echo ""
+      - task --list
+
+  run:
+    desc: run for API v1
+    cmds:
+      - go mod download
+      - CGO_ENABLED=0 go run ./cmd/sso --config="./config/local.yaml"
