@@ -7,6 +7,7 @@ import (
 
 	authgrpc "github.com/VariableSan/gia-sso/internal/grpc/auth"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type App struct {
@@ -22,6 +23,7 @@ func New(
 	gRPCServer := grpc.NewServer()
 
 	authgrpc.Register(gRPCServer)
+	reflection.Register(gRPCServer)
 
 	return &App{
 		log:        log,
@@ -44,7 +46,7 @@ func (app *App) Run() error {
 		slog.Int("port", app.port),
 	)
 
-	listener, err := net.Listen("tcp", fmt.Sprintf("%d", app.port))
+	listener, err := net.Listen("tcp", "localhost:"+fmt.Sprintf("%d", app.port))
 	if err != nil {
 		return fmt.Errorf("%s: %w", operation, err)
 	}
