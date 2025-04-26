@@ -14,3 +14,8 @@ tasks:
     cmds:
       - go mod download
       - CGO_ENABLED=0 go run ./cmd/sso --config="./config/local.yaml"
+
+  migrate:
+    desc: Run database migrations
+    cmds:
+      - go run ./cmd/migrator --storage-path=./storage/sso.db --migrations-path=./migrations
