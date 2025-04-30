@@ -13,7 +13,7 @@ tasks:
     desc: run for API v1
     cmds:
       - go mod download
-      - CGO_ENABLED=0 go run ./cmd/sso --config="./config/local.yaml"
+      - CGO_ENABLED=1 go run ./cmd/sso --config="./config/local.yaml"
 
   migrate:
     desc: Run database migrations

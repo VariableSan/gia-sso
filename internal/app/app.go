@@ -5,6 +5,8 @@ import (
 	"time"
 
 	grpcapp "github.com/VariableSan/gia-sso/internal/app/grpc"
+	"github.com/VariableSan/gia-sso/internal/services/auth"
+	"github.com/VariableSan/gia-sso/internal/storage/sqlite"
 )
 
 type App struct {
@@ -17,7 +19,14 @@ func New(
 	storagePath string,
 	tokenTTL time.Duration,
 ) *App {
-	grpcApp := grpcapp.New(log, grpcPort)
+	storage, err := sqlite.New(storagePath)
+	if err != nil {
+		panic(err)
+	}
+
+	authService := auth.New(log, storage, storage, storage, tokenTTL)
+
+	grpcApp := grpcapp.New(log, authService, grpcPort)
 
 	return &App{
 		GRPCSrv: grpcApp,

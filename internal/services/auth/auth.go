@@ -87,6 +87,7 @@ func (auth *Auth) Login(
 
 	app, err := auth.appProvider.App(ctx, appID)
 	if err != nil {
+		auth.log.Error("something wrong with app provider")
 		return "", fmt.Errorf("%s: %w", operation, err)
 	}
 
