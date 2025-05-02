@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 
 	ssov1 "github.com/VariableSan/gia-protos/gen/go/sso"
 	"github.com/VariableSan/gia-sso/pkg/validator"
@@ -50,6 +51,7 @@ func (s *serverAPI) Login(
 
 	token, err := s.auth.Login(ctx, req.GetEmail(), req.GetPassword(), int(req.GetAppId()))
 	if err != nil {
+		fmt.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 

@@ -4,9 +4,6 @@ tasks:
   help:
     desc: Display help for each task
     cmds:
-      - echo "Usage:"
-      - echo "  task <target>"
-      - echo ""
       - task --list
 
   run:

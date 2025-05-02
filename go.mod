@@ -22,7 +22,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
-	github.com/VariableSan/gia-protos v0.0.1
+	github.com/VariableSan/gia-protos v1.0.0
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/joho/godotenv v1.5.1 // indirect
 	golang.org/x/net v0.39.0 // indirect

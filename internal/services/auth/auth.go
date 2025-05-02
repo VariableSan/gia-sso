@@ -15,13 +15,14 @@ import (
 
 type Auth struct {
 	log          *slog.Logger
-	userSaver    UserSaver
 	userProvider UserProvider
 	appProvider  AppProvider
 	tokenTTL     time.Duration
 }
 
-type UserSaver interface {
+type UserProvider interface {
+	User(ctx context.Context, email string) (models models.User, err error)
+	IsAdmin(ctx context.Context, userID int64) (bool, error)
 	SaveUser(
 		ctx context.Context,
 		email string,
@@ -29,27 +30,24 @@ type UserSaver interface {
 	) (uid int64, err error)
 }
 
-type UserProvider interface {
-	User(ctx context.Context, email string) (models models.User, err error)
-	IsAdmin(ctx context.Context, userID int64) (bool, error)
-}
-
 type AppProvider interface {
 	App(ctx context.Context, appID int) (models.App, error)
 }
 
+type Provider interface {
+	UserProvider
+	AppProvider
+}
+
 func New(
 	log *slog.Logger,
-	userSaver UserSaver,
-	userProvider UserProvider,
-	appProvider AppProvider,
+	provider Provider,
 	tokenTTL time.Duration,
 ) *Auth {
 	return &Auth{
 		log:          log,
-		userSaver:    userSaver,
-		userProvider: userProvider,
-		appProvider:  appProvider,
+		userProvider: provider,
+		appProvider:  provider,
 		tokenTTL:     tokenTTL,
 	}
 }
@@ -121,7 +119,7 @@ func (auth *Auth) RegisterNewUser(
 		return 0, fmt.Errorf("%s: %w", operation, err)
 	}
 
-	id, err := auth.userSaver.SaveUser(ctx, email, passHash)
+	id, err := auth.userProvider.SaveUser(ctx, email, passHash)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExists) {
 			log.Warn("user already exists")
