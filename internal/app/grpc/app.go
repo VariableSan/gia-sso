@@ -13,12 +13,14 @@ import (
 type App struct {
 	log        *slog.Logger
 	gRPCServer *grpc.Server
+	host       string
 	port       int
 }
 
 func New(
 	log *slog.Logger,
 	authService authgrpc.Auth,
+	host string,
 	port int,
 ) *App {
 	gRPCServer := grpc.NewServer()
@@ -29,6 +31,7 @@ func New(
 	return &App{
 		log:        log,
 		gRPCServer: gRPCServer,
+		host:       host,
 		port:       port,
 	}
 }
@@ -47,7 +50,7 @@ func (app *App) Run() error {
 		slog.Int("port", app.port),
 	)
 
-	listener, err := net.Listen("tcp", "localhost:"+fmt.Sprintf("%d", app.port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", app.host, app.port))
 	if err != nil {
 		return fmt.Errorf("%s: %w", operation, err)
 	}

@@ -1,0 +1,7 @@
+env: "dev"
+storage_path: "./storage/sso.db"
+token_ttl: 1h
+grpc:
+  host: "0.0.0.0"
+  port: 44044
+  timeout: 10h

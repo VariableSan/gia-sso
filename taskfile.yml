@@ -16,3 +16,27 @@ tasks:
     desc: Run database migrations
     cmds:
       - go run ./cmd/migrator --storage-path=./storage/sso.db --migrations-path=./migrations
+
+  build:
+    desc: Build binary
+    cmds:
+      - go mod download
+      - CGO_ENABLED=1 go build -o bin/sso ./cmd/sso
+  
+  build-windows:
+    desc: Build binary (Windows)
+    cmds:
+      - go mod download
+      - go build -o bin/sso.exe ./cmd/sso
+  
+  preview:
+    desc: Preview a build version
+    cmds:
+      - ./bin/sso --config=./config/local.yaml
+    deps: [build]
+
+  preview-windows:
+    desc: Preview a build version (Windows)
+    cmds:
+      - bin/sso.exe --config=./config/local.yaml
+    deps: [build-windows]

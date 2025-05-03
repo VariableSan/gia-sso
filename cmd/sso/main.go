@@ -23,6 +23,7 @@ func main() {
 
 	application := app.New(
 		log,
+		cfg.GRPC.Host,
 		cfg.GRPC.Port,
 		cfg.StoragePath,
 		cfg.TokenTTL,
