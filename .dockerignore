@@ -1,0 +1,29 @@
+# Ignore build directories and outputs
+/bin
+/build
+
+# Ignore compiled binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Ignore Go modules cache and vendor dependencies
+/pkg/mod
+/vendor
+
+# Ignore test binaries and output files
+*.out
+
+# Ignore local development and IDE files
+.idea
+.vscode
+*.swp
+.DS_Store
+
+# Ignore log files
+*.log
+
+# Ignore temporary directories
+tmp
