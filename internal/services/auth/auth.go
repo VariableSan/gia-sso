@@ -27,7 +27,7 @@ type UserProvider interface {
 		ctx context.Context,
 		email string,
 		passHash []byte,
-	) (uid int64, err error)
+	) (int64, error)
 }
 
 type AppProvider interface {

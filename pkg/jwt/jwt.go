@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/VariableSan/gia-sso/internal/domain/models"
@@ -15,7 +16,7 @@ func NewToken(
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["uid"] = user.ID
+	claims["id"] = strconv.Itoa(int(user.ID))
 	claims["email"] = user.Email
 	claims["exp"] = time.Now().Add(duration).Unix()
 	claims["app_id"] = app.ID
