@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"os"
 
 	ssov1 "github.com/VariableSan/gia-protos/gen/go/sso"
 	"github.com/VariableSan/gia-sso/pkg/validator"
@@ -16,7 +17,7 @@ type Auth interface {
 		ctx context.Context,
 		email string,
 		password string,
-		appID int,
+		jwtSecret string,
 	) (token string, err error)
 	RegisterNewUser(
 		ctx context.Context,
@@ -49,7 +50,12 @@ func (s *serverAPI) Login(
 		return nil, err
 	}
 
-	token, err := s.auth.Login(ctx, req.GetEmail(), req.GetPassword(), int(req.GetAppId()))
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		return nil, status.Error(codes.InvalidArgument, "JWT_SECRET environment variable is not set")
+	}
+
+	token, err := s.auth.Login(ctx, req.GetEmail(), req.GetPassword(), jwtSecret)
 	if err != nil {
 		fmt.Println(err)
 		return nil, status.Error(codes.Internal, "internal error")

@@ -79,29 +79,6 @@ func (s *Storage) User(ctx context.Context, email string) (models.User, error) {
 	return user, nil
 }
 
-func (s *Storage) App(ctx context.Context, id int) (models.App, error) {
-	const operation = "storage.sqlite.App"
-
-	stmt, err := s.db.Prepare("SELECT id, name, secret FROM apps WHERE id = ?")
-	if err != nil {
-		return models.App{}, fmt.Errorf("%s: %w", operation, err)
-	}
-
-	row := stmt.QueryRowContext(ctx, id)
-
-	var app models.App
-	err = row.Scan(&app.ID, &app.Name, &app.Secret)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return models.App{}, fmt.Errorf("%s: %w", operation, storage.ErrAppNotFound)
-		}
-
-		return models.App{}, fmt.Errorf("%s: %w", operation, err)
-	}
-
-	return app, nil
-}
-
 func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	const operation = "storage.sqlite.IsAdmin"
 

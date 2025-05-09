@@ -23,7 +23,6 @@ func customValidationExample(validate *validator.Validate) {
 		type StructExampleUsage struct {
 			Email    string `validate:"required,validEmail"`
 			Password string `validate:"required,min=6"`
-			AppID    int32  `validate:"required,gt=0"`
 		}
 	*/
 	_ = validate.RegisterValidation(
@@ -49,7 +48,6 @@ func Validate(s interface{}) error {
 type LoginRequestValidator struct {
 	Email    string `validate:"required,email"`
 	Password string `validate:"required,min=6"`
-	AppID    int32  `validate:"required,gt=0"`
 }
 
 // RegisterRequestValidator validates RegisterRequest
@@ -73,7 +71,6 @@ func ValidateLoginRequest(req *ssov1.LoginRequest) error {
 	return Validate(LoginRequestValidator{
 		Email:    req.GetEmail(),
 		Password: req.GetPassword(),
-		AppID:    req.GetAppId(),
 	})
 }
 

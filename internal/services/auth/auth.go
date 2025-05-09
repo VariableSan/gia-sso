@@ -16,7 +16,6 @@ import (
 type Auth struct {
 	log          *slog.Logger
 	userProvider UserProvider
-	appProvider  AppProvider
 	tokenTTL     time.Duration
 }
 
@@ -30,13 +29,8 @@ type UserProvider interface {
 	) (int64, error)
 }
 
-type AppProvider interface {
-	App(ctx context.Context, appID int) (models.App, error)
-}
-
 type Provider interface {
 	UserProvider
-	AppProvider
 }
 
 func New(
@@ -47,7 +41,6 @@ func New(
 	return &Auth{
 		log:          log,
 		userProvider: provider,
-		appProvider:  provider,
 		tokenTTL:     tokenTTL,
 	}
 }
@@ -56,7 +49,7 @@ func (auth *Auth) Login(
 	ctx context.Context,
 	email string,
 	password string,
-	appID int,
+	jwtSecret string,
 ) (string, error) {
 	const operation = "auth.Login"
 
@@ -72,9 +65,7 @@ func (auth *Auth) Login(
 			auth.log.Warn("user not found")
 			return "", fmt.Errorf("%s: %w", operation, storage.ErrInvalidCredentials)
 		}
-
 		auth.log.Error("failed to get user")
-
 		return "", fmt.Errorf("%s: %w", operation, err)
 	}
 
@@ -83,19 +74,13 @@ func (auth *Auth) Login(
 		return "", fmt.Errorf("%s: %w", operation, storage.ErrInvalidCredentials)
 	}
 
-	app, err := auth.appProvider.App(ctx, appID)
-	if err != nil {
-		auth.log.Error("something wrong with app provider")
-		return "", fmt.Errorf("%s: %w", operation, err)
-	}
-
-	log.Info("user logged in successfully")
-
-	token, err := jwt.NewToken(user, app, auth.tokenTTL)
+	token, err := jwt.NewToken(user, jwtSecret, auth.tokenTTL)
 	if err != nil {
 		auth.log.Error("failed to generate token")
 		return "", fmt.Errorf("%s: %w", operation, err)
 	}
+
+	log.Info("user logged in successfully")
 
 	return token, nil
 }
@@ -149,11 +134,6 @@ func (auth *Auth) IsAdmin(
 
 	isAdmin, err := auth.userProvider.IsAdmin(ctx, userID)
 	if err != nil {
-		if errors.Is(err, storage.ErrAppNotFound) {
-			log.Warn("user not found")
-			return false, fmt.Errorf("%s: %w", operation, storage.ErrInvalidAppID)
-		}
-
 		return false, fmt.Errorf("%s: %w", operation, err)
 	}
 
